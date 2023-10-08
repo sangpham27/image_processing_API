@@ -1,37 +1,28 @@
 import express from 'express'
-import bodyParser from 'body-parser'
-import { Router, Request, Response } from 'express'
-import { filterImageFromURL, deleteLocalFiles } from './util/util'
+import fs from 'fs'
+import { Response } from 'express'
+import path from 'path'
+import routes from './routes'
 // Init the Express application
 const app = express()
 
 // Set the network port
 const port = process.env.PORT || 8082
 
-// Use the body parser middleware for post requests
-app.use(bodyParser.json())
-
-
-app.get('/filteredimage', async (req: Request, res: Response) => {
-  const image_url = req.query.image_url?.toString()
-  if (!image_url) {
-    res.status(400).send('image url is required')
-  }
-
-  const filteredImage = await filterImageFromURL(image_url as string)
-
-  res.status(200).sendFile(filteredImage, () => {
-    deleteLocalFiles([filteredImage])
-  })
-})
+app.use('/api', routes)
 
 // Displays a simple message to the user
-app.get('/', async (req, res) => {
-  res.send('try GET /filteredimage?image_url={{}}')
+app.get('/', (_, res: Response): void => {
+  res.status(200).send('Server is working!!!')
 })
 
 // Start the Server
-app.listen(port, () => {
+app.listen(port, (): void => {
+  // make sure thumb folder exist
+  const thumbPath = path.resolve(__dirname, '../assets/thumb')
+  if (!fs.existsSync(thumbPath)) {
+    fs.mkdirSync(thumbPath)
+  }
   console.log(`server running http://localhost:${port}`)
   console.log(`press CTRL+C to stop server`)
 })

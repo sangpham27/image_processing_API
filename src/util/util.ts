@@ -1,47 +1,50 @@
-import fs from 'fs'
-import Sharp = require('sharp')
-import { PATH_DIR } from '../constants/dir'
-import Jimp = require('jimp')
+import fs from 'fs/promises'
+import sharp from 'sharp'
 
-/**
- * Helper function to download, filter, and save the filtered image locally
- * Returns the absolute path to the local image
- * @param inputURL - a publicly accessible url to an image file
- * @returns an absolute path to a filtered image locally saved file
- */
-export async function filterImageFromURL(inputURL: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      const outpath = '/tmp/filtered.' + Math.floor(Math.random() * 2000) + '.jpg'
-      const photo = Jimp.read(inputURL)
-      photo.then((img) => {
-        img.getBuffer(Jimp.MIME_JPEG, (err, buffer) => {
-          Sharp(buffer)
-            .resize(256, 256)
-            .jpeg({ quality: 60 })
-            .grayscale()
-            .toFile(PATH_DIR + outpath, (err) => {
-              if (err) {
-                reject(err)
-              } else {
-                resolve(PATH_DIR + outpath)
-              }
-            })
-        })
-      })
-    } catch (error) {
-      reject(error)
-    }
-  })
+interface ResizeImageProps {
+  width: number
+  height: number
+  filePathFullImage: string
+  filePathThumbImage: string
 }
 
 /**
- * Helper function to delete files on the local disk
- * @param files Array<string> an array of absolute paths to files
- * @returns useful to cleanup after tasks
+ * Helper function resize an image of given path and saves it to the given thumb path
+ * @param width - width of the image
+ * @param height - height if the image
+ * @param filePathFullImage - a publicly accessible path to an image file
+ * @param filePathThumbImage - a publicly accessible oath to an image file
+ * @returns the buffer of resized image on success
  */
-export async function deleteLocalFiles(files: Array<string>) {
-  for (const file of files) {
-    fs.unlinkSync(file)
+const resizeImage = async ({
+  width,
+  height,
+  filePathFullImage,
+  filePathThumbImage
+}: ResizeImageProps): Promise<Buffer> => {
+  const data: Buffer | null = await fs.readFile(filePathFullImage).catch(() => null)
+
+  if (!data) {
+    return Promise.reject()
   }
+
+  const imageBuffer: Buffer | null = await sharp(data)
+    .resize(width, height)
+    .toBuffer()
+    .catch(() => null)
+
+  if (!imageBuffer) {
+    return Promise.reject()
+  }
+
+  return fs
+    .writeFile(filePathThumbImage, imageBuffer)
+    .then(() => {
+      return imageBuffer
+    })
+    .catch(() => {
+      return Promise.reject()
+    })
 }
+
+export default { resizeImage }
