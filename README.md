@@ -2,7 +2,7 @@
 
 ![Express](https://img.shields.io/badge/Express-4.18.2-green)
 ![Sharp](https://img.shields.io/badge/Sharp-0.32.6-blue)
-![Jest](https://img.shields.io/badge/Jest-29.7.0-orange)
+![Jasmine](https://img.shields.io/badge/Jasmine-5.1.0-orange)
 
 This is a simple Express.js application that provides an API endpoint to filter images from publicly accessible URLs. It uses Jimp for image processing.
 
@@ -25,7 +25,7 @@ This is a simple Express.js application that provides an API endpoint to filter 
 
 1. Install the dependencies:
    ```bash
-   npm install
+   yarn install
    ```
 
 ## Usage
@@ -35,12 +35,13 @@ This is a simple Express.js application that provides an API endpoint to filter 
 To start the application, run the following command:
 
 ```bash
-npm start
+yarn dev
 ```
 
 The server will start at `http://localhost:8082`.
 
 ### API Endpoints
+
 ## Parameters:
 
 image_url (query parameter): The URL of the publicly accessible image.
@@ -56,5 +57,5 @@ GET /api/images?filename=hero&width=500&height=500
 To run tests, use the following command:
 
 ```bash
-npm test
+yarn test
 ```

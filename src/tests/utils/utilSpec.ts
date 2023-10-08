@@ -16,13 +16,13 @@ describe('The imageResizer function', (): void => {
   })
 
   it('rejects promise if something went wrong', async (): Promise<void> => {
-    await expect(
+    await expectAsync(
       util.resizeImage({
         height: 100,
         width: 150,
         filePathFullImage: '',
         filePathThumbImage
       })
-    )
+    ).toBeRejected()
   })
 })
